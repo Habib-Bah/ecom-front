@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {ProductService} from '../services/product.service';
 
 @Component({
   selector: 'app-products',
@@ -9,21 +10,35 @@ import { Component } from '@angular/core';
 export class ProductsComponent {
 
   products: any;
-  constructor() {
+  constructor(private productService : ProductService) {
   }
   ngOnInit() : void {
-    this.products = [
-      {id : 1, name : "Computer", price : 2300, selected : true},
-      {id : 2,name : "Printer", price : 1200, selected : false},
-      {id : 3,name : "Smart Phone", price : 1100, selected : true}
-    ]
+    this.getAllProduct();
+  }
+
+  getAllProduct() {
+    this.products = this.productService.getAllProducts().subscribe({
+      next : repvalue => {
+        this.products = repvalue;
+      },
+      error : err => {
+        console.log(err);
+      }
+    });
   }
 
   handleDelete(product: any) {
 
     let v = confirm('Etes vous sure de vouloir supprimer ?')
     if (v == true) {
-      this.products = this.products.filter((p:any) =>p.id != product.id);
+      this.productService.deleteProduct(product).subscribe({
+        next : () => {
+          this.getAllProduct();
+        },
+        error : (err: any) => {
+          console.log(err);
+        }
+      });
     }
   }
 }
